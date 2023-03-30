@@ -11,6 +11,7 @@ from tkinter import Text, Scrollbar
 from tkinter.constants import END, RIGHT, LEFT, Y
 from moviepy.editor import AudioFileClip
 from tkinter import Toplevel, Label, Button
+from tqdm import tqdm
 
 
 def save_paths(input_file_path, model_folder_path):
@@ -255,9 +256,13 @@ class TranscriptionGUI(Tk):
         save_paths(self.input_file_path.get(), self.model_folder_path.get())
 
     def transcribe_thread(self):
+        progress_bar = tqdm(total=len(self.input_file_list), desc='Transcribing')
+        progress_bar.update(1)
         successful_transcriptions = 0  # Initialize the counter before the for loop
+        progress_bar.close()
         self.start_time = time.time()  # Move start time outside the for loop
-        for input_file in self.input_file_list:
+        for input_file in tqdm(self.input_file_list, desc='Transcribing', unit='file'):
+      
             input_file_path = input_file
             if input_file.endswith(".mp4") or input_file.endswith(".mkv"):
                 try:
@@ -337,8 +342,6 @@ class TranscriptionGUI(Tk):
     def transcribe(self):
         self.status_log_text.delete(1.0, END)
         self.status_log_text.insert(END, "Transcribing...\n")
-        self.progress.set(0)
-        self.progress_bar.start()
         self.start_time = time.time()
         self.start_time_value.set("00:00:00")
         self.stopwatch_start_time = time.time()
